@@ -1,6 +1,6 @@
 import click
 from cli.utils.output import (
-    console, print_vault_panel, print_success, print_error,
+    console, print_success, print_error,
     print_info, prompt_master_password,
 )
 from core.vault import VaultManager
@@ -11,11 +11,6 @@ from exceptions import AuthenticationError, VaultNotInitializedError, RateLimitE
 @click.option("--password", "-p", help="Master password (omit for prompt)")
 def auth(password):
     """Authenticate to the vault (establishes a 30-min session)."""
-    print_vault_panel(
-        "auth",
-        "\n  [bold #D39CE0]🔐 Authenticating...[/bold #D39CE0]\n",
-    )
-
     vault = VaultManager()
 
     try:
@@ -27,8 +22,7 @@ def auth(password):
         vault.authenticate(password)
         print_success("Authenticated")
         print_info("Session expires in 30 minutes")
-        print_info("")
-        print_info("🔓 Vault unlocked. Ready to use.")
+        print_info("[OPEN] Vault unlocked. Ready to use.")
     except VaultNotInitializedError as e:
         print_error(str(e))
         print_info("Run 'aegis setup' first to create your vault")
