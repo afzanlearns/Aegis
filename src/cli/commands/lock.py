@@ -8,4 +8,4 @@ def lock():
     """Lock the vault and end the session."""
     vault = VaultManager()
     vault.logout()
-    console.print("  [bold #4CAF50]✓[/bold #4CAF50] Vault locked")
+    console.print("  [bold #4CAF50][OK][/bold #4CAF50] Vault locked")

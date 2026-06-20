@@ -11,11 +11,11 @@ def find(query):
     vault = VaultManager()
     if not vault.is_authenticated():
         console.print(
-            "[#9C27B0 bold]✗ Error:[/#9C27B0 bold] Not authenticated",
+            "[#9C27B0 bold][ERR][/#9C27B0 bold] Not authenticated",
             style="#FF5252"
         )
         console.print(
-            "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' first to authenticate[/dim]"
+            "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' to authenticate[/dim]"
         )
         sys.exit(1)
 
