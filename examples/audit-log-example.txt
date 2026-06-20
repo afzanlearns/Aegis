@@ -1,0 +1,15 @@
+Aegis Audit Log
+===============
+Format: ID | Action | Secret Name | Timestamp | Success | Details
+
+1  | vault_initialized | —    | 2025-06-20T09:00:00 | Yes |
+2  | auth_success      | —    | 2025-06-20T09:01:00 | Yes |
+3  | save_secret       | github-token | 2025-06-20T09:05:00 | Yes |
+4  | save_secret       | prod-db-url  | 2025-06-20T09:06:00 | Yes |
+5  | get_secret        | github-token | 2025-06-20T10:30:00 | Yes |
+6  | get_secret        | github-token | 2025-06-20T10:30:05 | Yes | Copied to clipboard
+7  | auth_failed       | —    | 2025-06-20T10:45:00 | No  | Invalid password
+8  | auth_success      | —    | 2025-06-20T10:45:30 | Yes |
+9  | delete_secret     | old-key      | 2025-06-20T11:00:00 | Yes |
+10 | export            | —    | 2025-06-20T12:00:00 | Yes | 8 secrets
+11 | logout            | —    | 2025-06-20T17:00:00 | Yes |
