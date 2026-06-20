@@ -1,50 +1,38 @@
-# .commandcode folder (AI assistant config)
+# CommandCode - AI agent state
 .commandcode/
 
-# Python bytecode
+# Python
 __pycache__/
 *.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
 
-# Virtual environments
+# Environment
 .env
-.venv
+.env.*
 venv/
-env/
+.venv/
 
-# IDE files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Egg info / build artifacts
-*.egg-info/
-*.egg
-dist/
-build/
-
-# Pytest cache
-.pytest_cache/
-
-# Aegis vault data (sensitive!)
+# Aegis - local vault data (NEVER commit)
 .aegis/
+*.db
+*.session
+.lockout
 
-# Backup files
-*.backup
-*.bak
-
-# Logs
-*.log
-
-# Environment variables
-.env.local
-.env.*.local
-
-# Secrets / keys
-*.key
-*.pem
-*.cert
+# Test artifacts
+test_e2e.py

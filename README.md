@@ -6,15 +6,15 @@
 Aegis is a secure, minimal credential manager that lets developers store and retrieve passwords, API keys, and secrets from the command line. **No cloud, no account, no friction** — just encryption at rest and in transit.
 
 ```
-    _    ____  ___    _     _____
-   / \  |  _ \/ _ \  / |   / ____|
-  / _ \ | |_) | | | | |   | (___
- / ___ \|  _ <| |_| | |    \___ \
-/_/   \_\_| \_\\___/  |_|    ____) |
-                                  |___/
+    ___              _
+   /   | ___  ____ _(_)____
+  / /| |/ _ \/ __ `/ / ___/
+ / ___ /  __/ /_/ / (__  )
+/_/  |_\___/\__, /_/____/
+           /____/
 
-  Aegis v1.0.0 • Encrypted Secrets Manager
-  "Guardian of Your Credentials"
+    Aegis v1.0.0 - Encrypted Secrets Manager
+    "Guardian of Your Credentials"
 ```
 
 ---
@@ -239,14 +239,13 @@ When saving secrets, you can categorize them with `--type` (or `-t`):
 
 ### Color Palette
 
-Aegis features a distinctive purple and gold theme inspired by premium security tools.
+Aegis features a distinctive purple theme inspired by premium security tools.
 
 | Token | Hex | Usage |
 |-------|-----|-------|
 | Primary | `#9C27B0` | Headers, highlights, border accents |
 | Secondary | `#BA68C8` | Secondary UI accents |
 | Accent | `#D39CE0` | Subtle borders, decorative elements |
-| Gold | `#FFD700` | Premium accents, vault icons, tips |
 | Success | `#4CAF50` | Authentication success, confirmations |
 | Error | `#FF5252` | Failed operations, denied access |
 | Warning | `#FFC107` | Cautions, confirmations |

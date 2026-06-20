@@ -14,34 +14,34 @@ console = Console(
     color_system="auto",
 )
 
-# Purple/gold theme colors
+# Purple-only theme colors
 PURPLE = "#9C27B0"
 MEDIUM_PURPLE = "#BA68C8"
 LIGHT_PURPLE = "#D39CE0"
-GOLD = "#FFD700"
 SUCCESS = "#4CAF50"
 ERROR = "#FF5252"
 WARNING = "#FFC107"
 NEUTRAL = "#E0E0E0"
-BACKGROUND = "#1A1A1A"
 TEXT = "#FFFFFF"
 MUTED = "#808080"
 
 
 def print_header() -> None:
     """Print the Aegis ASCII art header."""
-    ascii_art = """
-    [bold #9C27B0] _    ____  ___    _     _____ [/bold #9C27B0]
-    [bold #9C27B0]/ \\  |  _ \\/ _ \\  / |   / ____|[/bold #9C27B0]
-    [bold #BA68C8]/ _ \\ | |_) | | | | |   | (___  [/bold #BA68C8]
-    [bold #D39CE0]/ ___ \\|  _ <| |_| | |    \\___ \\ [/bold #D39CE0]
-    [bold #E0E0E0]/_/   \\_\\_| \\_\\\\___/  |_|    ____) |[/bold #E0E0E0]
-    [bold #E0E0E0]                                 |___/ [/bold #E0E0E0]
+    header = """
 
-    [bold #FFD700]Aegis v1.0.0[/bold #FFD700] [dim]- Encrypted Secrets Manager[/dim]
-    [italic #808080]"Guardian of Your Credentials"[/italic #808080]
-    """
-    console.print(ascii_art)
+    [bold #9C27B0]    ___              _     [/bold #9C27B0]
+    [bold #9C27B0]   /   | ___  ____ _(_)____[/bold #9C27B0]
+    [bold #9C27B0]  / /| |/ _ \\/ __ `/ / ___/[/bold #9C27B0]
+    [bold #9C27B0] / ___ /  __/ /_/ / (__  ) [/bold #9C27B0]
+    [bold #9C27B0]/_/  |_\\___/\\__, /_/____/ [/bold #9C27B0]
+    [bold #9C27B0]           /____/          [/bold #9C27B0]
+
+    [bold #9C27B0]Aegis v1.0.0[/bold #9C27B0]  [dim]Encrypted Secrets Manager[/dim]
+    [italic #808080] \"Guardian of Your Credentials\"[/italic #808080]
+
+"""
+    console.print(header)
 
 
 def print_vault_panel(title: str, content: str, border_color: str = PURPLE) -> None:
@@ -85,7 +85,7 @@ def print_secret_list(secrets: List[Dict]) -> None:
     table = Table(
         box=box.ROUNDED,
         border_style=PURPLE,
-        header_style=f"bold {GOLD}",
+        header_style=f"bold {PURPLE}",
         padding=(0, 1),
     )
     table.add_column("Name", style=TEXT)
@@ -145,7 +145,7 @@ def print_vault_info(info: Dict) -> None:
         print_vault_panel(
             "vault",
             "  Vault not initialized.\n\n  Run 'aegis setup' to create your vault.",
-            border_color=WARNING,
+            border_color=PURPLE,
         )
         return
 
@@ -179,7 +179,7 @@ def print_audit_logs(logs: List[Dict]) -> None:
     table = Table(
         box=box.ROUNDED,
         border_style=PURPLE,
-        header_style=f"bold {GOLD}",
+        header_style=f"bold {PURPLE}",
         padding=(0, 1),
     )
     table.add_column("Time", style=MUTED)
