@@ -28,12 +28,11 @@ MUTED = "#808080"
 def print_header() -> None:
     """Print the Aegis ASCII art header."""
     header = """
-
-    [bold #9C27B0]    ___              _     [/bold #9C27B0]
+    [bold #9C27B0]___              _     [/bold #9C27B0]
     [bold #9C27B0]   /   | ___  ____ _(_)____[/bold #9C27B0]
     [bold #9C27B0]  / /| |/ _ \\/ __ `/ / ___/[/bold #9C27B0]
     [bold #9C27B0] / ___ /  __/ /_/ / (__  ) [/bold #9C27B0]
-    [bold #9C27B0]/_/  |_\\___/\\__, /_/____/ [/bold #9C27B0]
+    [bold #9C27B0]/_/  |_\\___/\\__, /_/____/  [/bold #9C27B0]
     [bold #9C27B0]           /____/          [/bold #9C27B0]
 
     [bold #9C27B0]Aegis v1.0.0[/bold #9C27B0]  [dim]Encrypted Secrets Manager[/dim]
@@ -56,22 +55,22 @@ def print_vault_panel(title: str, content: str, border_color: str = PURPLE) -> N
 
 def print_success(message: str) -> None:
     """Print a success message."""
-    console.print(f"  [bold {SUCCESS}]✓[/bold {SUCCESS}] [bold]{message}[/bold]")
+    console.print(f"  [bold {SUCCESS}][OK][/bold {SUCCESS}] [bold]{message}[/bold]")
 
 
 def print_error(message: str) -> None:
     """Print an error message."""
-    console.print(f"  [bold {ERROR}]✗[/bold {ERROR}] [bold]{message}[/bold]")
+    console.print(f"  [bold {ERROR}][ERR][/bold {ERROR}] [bold]{message}[/bold]")
 
 
 def print_warning(message: str) -> None:
     """Print a warning message."""
-    console.print(f"  [bold {WARNING}]⚠[/bold {WARNING}] {message}")
+    console.print(f"  [bold {WARNING}][WARN][/bold {WARNING}] {message}")
 
 
 def print_info(message: str) -> None:
     """Print an info message."""
-    console.print(f"  [bold {LIGHT_PURPLE}]ℹ[/bold {LIGHT_PURPLE}] {message}")
+    console.print(f"  [bold {LIGHT_PURPLE}][*][/bold {LIGHT_PURPLE}] {message}")
 
 
 def print_secret_list(secrets: List[Dict]) -> None:
@@ -151,9 +150,9 @@ def print_vault_info(info: Dict) -> None:
     if info.get("authenticated"):
         expires = info.get("session_expires_in", 0)
         mins, secs = divmod(expires, 60)
-        content_lines.append(f"  [bold {SUCCESS}]✓[/bold {SUCCESS}] Authenticated (expires in {mins}m {secs}s)")
+        content_lines.append(f"  [bold {SUCCESS}][OK][/bold {SUCCESS}] Authenticated (expires in {mins}m {secs}s)")
     else:
-        content_lines.append(f"  [bold {WARNING}]⚠[/bold {WARNING}] Not authenticated")
+        content_lines.append(f"  [bold {WARNING}][WARN][/bold {WARNING}] Not authenticated")
 
     content_lines.append("")
     secret_count = info.get("secret_count", 0)
@@ -197,7 +196,7 @@ def print_audit_logs(logs: List[Dict]) -> None:
         action = log.get("action", "")
         secret = log.get("secret_name", "") or "-"
         success = log.get("success", True)
-        status = f"[bold {SUCCESS}]✓[/bold {SUCCESS}]" if success else f"[bold {ERROR}]✗[/bold {ERROR}]"
+        status = f"[bold {SUCCESS}][OK][/bold {SUCCESS}]" if success else f"[bold {ERROR}][ERR][/bold {ERROR}]"
 
         table.add_row(ts, action, secret, status)
 
