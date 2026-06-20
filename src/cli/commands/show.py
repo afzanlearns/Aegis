@@ -2,13 +2,13 @@ import sys
 import click
 from cli.utils.output import console, print_success, print_error
 from core.vault import VaultManager
+from exceptions import SecretNotFoundError, DecryptionError
 
 
 @click.command()
 @click.argument("name")
-@click.argument("tag")
-def save(name, tag):
-    """Save a secret with a tag."""
+def show(name):
+    """Retrieve and copy a secret to clipboard."""
     vault = VaultManager()
     if not vault.is_authenticated():
         console.print(
@@ -20,17 +20,13 @@ def save(name, tag):
         )
         sys.exit(1)
 
-    from getpass import getpass
-    console.print(f"  [bold #D39CE0]Value for '{name}':[/bold #D39CE0]")
-    value = getpass("  ")
-
-    if not value:
-        print_error("Value cannot be empty")
-        sys.exit(1)
-
     try:
-        vault.save_secret(name, value, tag=tag)
-        console.print(f"  [bold #4CAF50]✓[/bold #4CAF50] Saved '[bold]{name}[/bold]' [[bold #D39CE0]{tag}[/bold #D39CE0]]")
-    except Exception as e:
+        vault.get_secret(name, copy=True)
+        console.print(f"  [bold #4CAF50]✓[/bold #4CAF50] Retrieved '[bold]{name}[/bold]'")
+        console.print("  [bold #FFC107]📋 Copied to clipboard (clears in 30s)[/bold #FFC107]")
+    except SecretNotFoundError as e:
+        print_error(str(e))
+        sys.exit(1)
+    except DecryptionError as e:
         print_error(str(e))
         sys.exit(1)

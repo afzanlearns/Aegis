@@ -97,7 +97,7 @@ class VaultManager:
         """Check if the current session is valid."""
         return self.session.is_valid()
 
-    def save_secret(self, name: str, value: str, secret_type: str = "password") -> bool:
+    def save_secret(self, name: str, value: str, tag: str = "general") -> bool:
         """Save an encrypted secret."""
         self._require_auth()
 
@@ -105,12 +105,12 @@ class VaultManager:
             raise ValueError("Invalid secret name — must be 1-100 characters")
 
         key = self.session.get_key()
-        ciphertext, nonce, tag = CryptoManager.encrypt(value, key)
+        ciphertext, nonce, auth_tag = CryptoManager.encrypt(value, key)
 
         now = datetime.now()
         entry = SecretEntry(
-            name=name, secret_type=secret_type,
-            encrypted_value=ciphertext, nonce=nonce, tag=tag,
+            name=name, user_tag=tag,
+            encrypted_value=ciphertext, nonce=nonce, auth_tag=auth_tag,
             created_at=now, updated_at=now,
         )
 
@@ -126,7 +126,7 @@ class VaultManager:
         entry = self.db.get_secret(name)
         try:
             plaintext = CryptoManager.decrypt(
-                entry.encrypted_value, key, entry.nonce, entry.tag
+                entry.encrypted_value, key, entry.nonce, entry.auth_tag
             )
         except DecryptionError:
             self.audit.log("get_secret", name, False, "Decryption failed")
@@ -143,6 +143,11 @@ class VaultManager:
         """List all stored secrets with metadata (values redacted)."""
         self._require_auth()
         return self.db.list_secrets()
+
+    def list_secrets_by_tag(self, tag: str) -> List[Dict]:
+        """List secrets filtered by tag."""
+        self._require_auth()
+        return self.db.list_secrets_by_tag(tag)
 
     def search_secrets(self, query: str) -> List[Dict]:
         """Search secrets by name."""
@@ -179,11 +184,11 @@ class VaultManager:
         for entry in entries:
             try:
                 plaintext = CryptoManager.decrypt(
-                    entry.encrypted_value, key, entry.nonce, entry.tag
+                    entry.encrypted_value, key, entry.nonce, entry.auth_tag
                 )
                 backup_data.append({
                     "name": entry.name,
-                    "type": entry.secret_type,
+                    "tag": entry.user_tag,
                     "value": plaintext,
                     "created_at": entry.created_at.isoformat() if entry.created_at else None,
                     "updated_at": entry.updated_at.isoformat() if entry.updated_at else None,
@@ -246,11 +251,11 @@ class VaultManager:
         key = self.session.get_key()
         entries = []
         for item in backup_data:
-            ct, nonce, tag = CryptoManager.encrypt(item["value"], key)
+            ct, nonce, auth_tag = CryptoManager.encrypt(item["value"], key)
             now = datetime.now()
             entry = SecretEntry(
-                name=item["name"], secret_type=item.get("type", "password"),
-                encrypted_value=ct, nonce=nonce, tag=tag,
+                name=item["name"], user_tag=item.get("tag", "general"),
+                encrypted_value=ct, nonce=nonce, auth_tag=auth_tag,
                 created_at=now, updated_at=now,
             )
             entries.append(entry)

@@ -1,15 +1,12 @@
 import sys
 import click
-from cli.utils.output import (
-    console, print_vault_panel, print_secret_list, print_error, print_info,
-)
+from cli.utils.output import console, print_secret_list, print_error, print_info
 from core.vault import VaultManager
-from exceptions import AuthenticationError
 
 
 @click.command()
 @click.argument("query")
-def search(query):
+def find(query):
     """Search secrets by name."""
     vault = VaultManager()
     if not vault.is_authenticated():
@@ -26,14 +23,10 @@ def search(query):
         results = vault.search_secrets(query)
 
         if results:
-            print_vault_panel(
-                "search",
-                f"\n  [bold #D39CE0]🔍 Search results for '{query}' ({len(results)} found)[/bold #D39CE0]\n",
-            )
+            console.print(f"  [bold #D39CE0]Found {len(results)} secret[/bold #D39CE0]")
             print_secret_list(results)
         else:
             print_info(f"No secrets matching '{query}'")
-    except AuthenticationError as e:
+    except Exception as e:
         print_error(str(e))
-        print_info("Run 'aegis auth' first")
-        raise SystemExit(1)
+        sys.exit(1)

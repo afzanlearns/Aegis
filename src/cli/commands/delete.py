@@ -1,14 +1,13 @@
 import sys
 import click
-from cli.utils.output import console, print_vault_panel, print_success, print_error, print_info
+from cli.utils.output import console, print_error, print_info
 from core.vault import VaultManager
-from exceptions import AuthenticationError, SecretNotFoundError
+from exceptions import SecretNotFoundError
 
 
 @click.command()
 @click.argument("name")
-@click.option("--force", "-f", is_flag=True, help="Skip confirmation")
-def delete(name, force):
+def delete(name):
     """Delete a stored secret."""
     vault = VaultManager()
     if not vault.is_authenticated():
@@ -22,22 +21,17 @@ def delete(name, force):
         sys.exit(1)
 
     try:
-        if not force:
-            try:
-                click.confirm(
-                    f"  [bold #FFC107]⚠ Are you sure you want to delete '{name}'?[/bold #FFC107]",
-                    abort=True,
-                )
-            except click.Abort:
-                print_info("Cancelled")
-                return
+        click.confirm(
+            f"  [bold #FFC107]Delete '{name}'?[/bold #FFC107]",
+            abort=True,
+        )
+    except click.Abort:
+        print_info("Cancelled")
+        return
 
+    try:
         vault.delete_secret(name)
-        print_success(f"Deleted '{name}'")
-    except AuthenticationError as e:
-        print_error(str(e))
-        print_info("Run 'aegis auth' first")
-        raise SystemExit(1)
+        console.print(f"  [bold #4CAF50]✓[/bold #4CAF50] Deleted '[bold]{name}[/bold]'")
     except SecretNotFoundError as e:
         print_error(str(e))
-        raise SystemExit(1)
+        sys.exit(1)

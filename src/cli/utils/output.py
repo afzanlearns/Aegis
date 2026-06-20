@@ -37,7 +37,6 @@ def print_header() -> None:
     [bold #9C27B0]           /____/          [/bold #9C27B0]
 
     [bold #9C27B0]Aegis v1.0.0[/bold #9C27B0]  [dim]Encrypted Secrets Manager[/dim]
-    [italic #808080] \"Guardian of Your Credentials\"[/italic #808080]
 
 """
     console.print(header)
@@ -88,7 +87,7 @@ def print_secret_list(secrets: List[Dict]) -> None:
         padding=(0, 1),
     )
     table.add_column("Name", style=TEXT)
-    table.add_column("Type", style=LIGHT_PURPLE)
+    table.add_column("Tag", style=LIGHT_PURPLE)
     table.add_column("Created", style=MUTED)
 
     for secret in secrets:
@@ -109,9 +108,9 @@ def print_secret_list(secrets: List[Dict]) -> None:
             created_str = ""
 
         name_text = f"  {secret['name']}"
-        secret_type = secret.get("type", "password")
+        user_tag = secret.get("user_tag", "general")
 
-        table.add_row(name_text, secret_type, created_str)
+        table.add_row(name_text, user_tag, created_str)
 
     console.print(table)
 

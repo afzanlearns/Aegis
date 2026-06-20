@@ -1,15 +1,13 @@
 import sys
 import click
-from cli.utils.output import (
-    console, print_vault_panel, print_secret_list, print_error, print_info,
-)
+from cli.utils.output import console, print_secret_list, print_error, print_info
 from core.vault import VaultManager
-from exceptions import AuthenticationError
 
 
 @click.command()
-def list_secrets():
-    """List all stored secrets (values redacted)."""
+@click.argument("tag", required=False)
+def list_secrets(tag):
+    """List all secrets or filter by tag."""
     vault = VaultManager()
     if not vault.is_authenticated():
         console.print(
@@ -22,24 +20,25 @@ def list_secrets():
         sys.exit(1)
 
     try:
-        secrets = vault.list_secrets()
-
-        if secrets:
-            count = len(secrets)
-            print_vault_panel(
-                "list",
-                f"\n  [bold #D39CE0]🔐 Your Secrets ({count} stored)[/bold #D39CE0]\n",
-            )
-            print_secret_list(secrets)
-            print_info("")
-            print_info("💡 Tip: aegis get <name> --copy")
+        if tag:
+            secrets = vault.list_secrets_by_tag(tag)
+            if secrets:
+                console.print(f"  [bold #D39CE0]{tag.title()}s ({len(secrets)} stored)[/bold #D39CE0]")
+            else:
+                print_info(f"No secrets tagged '{tag}'")
+                return
         else:
-            print_vault_panel(
-                "list",
-                "\n  🔐 No secrets stored yet.\n\n  💡 Save your first secret: aegis save <name> <value>\n",
-                border_color="#FFC107",
-            )
-    except AuthenticationError as e:
+            secrets = vault.list_secrets()
+            if secrets:
+                console.print(f"  [bold #D39CE0]Your Secrets ({len(secrets)} stored)[/bold #D39CE0]")
+            else:
+                print_info("No secrets stored yet.")
+                return
+
+        print_secret_list(secrets)
+        if not tag:
+            print_info("")
+            print_info("💡 Tip: aegis show <name>  or  aegis list <tag>")
+    except Exception as e:
         print_error(str(e))
-        print_info("Run 'aegis auth' first")
-        raise SystemExit(1)
+        sys.exit(1)

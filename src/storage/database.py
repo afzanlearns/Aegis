@@ -22,10 +22,10 @@ class DatabaseManager:
             CREATE TABLE IF NOT EXISTS secrets (
                 id TEXT PRIMARY KEY,
                 name TEXT UNIQUE NOT NULL,
-                secret_type TEXT DEFAULT 'password',
+                user_tag TEXT DEFAULT 'general',
                 encrypted_value BLOB NOT NULL,
                 nonce BLOB NOT NULL,
-                tag BLOB NOT NULL,
+                auth_tag BLOB NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 accessed_at TIMESTAMP
@@ -45,6 +45,42 @@ class DatabaseManager:
 
         conn.commit()
         conn.close()
+        self._migrate_schema()
+
+    def _migrate_schema(self) -> None:
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+
+        has_old_tag = False
+        has_secret_type = False
+        try:
+            cursor.execute("SELECT tag FROM secrets LIMIT 1")
+            has_old_tag = True
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("SELECT secret_type FROM secrets LIMIT 1")
+            has_secret_type = True
+        except sqlite3.OperationalError:
+            pass
+
+        if has_old_tag:
+            try:
+                cursor.execute("SELECT auth_tag FROM secrets LIMIT 1")
+            except sqlite3.OperationalError:
+                cursor.execute("ALTER TABLE secrets ADD COLUMN auth_tag BLOB")
+                cursor.execute("UPDATE secrets SET auth_tag = tag")
+                conn.commit()
+
+        if has_secret_type:
+            try:
+                cursor.execute("SELECT user_tag FROM secrets LIMIT 1")
+            except sqlite3.OperationalError:
+                cursor.execute("ALTER TABLE secrets ADD COLUMN user_tag TEXT DEFAULT 'general'")
+                cursor.execute("UPDATE secrets SET user_tag = secret_type")
+                conn.commit()
+
+        conn.close()
         self.db_path.chmod(0o600)
 
     def save_secret(self, entry: SecretEntry) -> None:
@@ -53,15 +89,15 @@ class DatabaseManager:
         try:
             cursor.execute("""
                 INSERT OR REPLACE INTO secrets
-                    (id, name, secret_type, encrypted_value, nonce, tag, created_at, updated_at)
+                    (id, name, user_tag, encrypted_value, nonce, auth_tag, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 entry.id or os.urandom(16).hex(),
                 entry.name,
-                entry.secret_type,
+                entry.user_tag,
                 entry.encrypted_value,
                 entry.nonce,
-                entry.tag,
+                entry.auth_tag,
                 entry.created_at.isoformat(),
                 entry.updated_at.isoformat(),
             ))
@@ -76,7 +112,7 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute(
-                "SELECT id, name, secret_type, encrypted_value, nonce, tag, created_at, updated_at, accessed_at "
+                "SELECT id, name, user_tag, encrypted_value, nonce, auth_tag, created_at, updated_at, accessed_at "
                 "FROM secrets WHERE name = ?", (name,)
             )
             row = cursor.fetchone()
@@ -84,8 +120,8 @@ class DatabaseManager:
                 raise SecretNotFoundError(f"Secret '{name}' not found")
 
             entry = SecretEntry(
-                id=row[0], name=row[1], secret_type=row[2] or "password",
-                encrypted_value=row[3], nonce=row[4], tag=row[5],
+                id=row[0], name=row[1], user_tag=row[2],
+                encrypted_value=row[3], nonce=row[4], auth_tag=row[5],
                 created_at=datetime.fromisoformat(row[6]) if row[6] else datetime.now(),
                 updated_at=datetime.fromisoformat(row[7]) if row[7] else datetime.now(),
                 accessed_at=datetime.fromisoformat(row[8]) if row[8] else None,
@@ -105,7 +141,7 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute(
-                "SELECT name, secret_type, created_at, accessed_at "
+                "SELECT name, user_tag, created_at, accessed_at "
                 "FROM secrets ORDER BY accessed_at DESC"
             )
             rows = cursor.fetchall()
@@ -113,11 +149,27 @@ class DatabaseManager:
             for row in rows:
                 secrets.append({
                     "name": row[0],
-                    "type": row[1] or "password",
+                    "user_tag": row[1] or "general",
                     "created": row[2],
                     "accessed": row[3],
                 })
             return secrets
+        finally:
+            conn.close()
+
+    def list_secrets_by_tag(self, tag: str) -> List[Dict]:
+        conn = sqlite3.connect(str(self.db_path))
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "SELECT name, user_tag, created_at, accessed_at "
+                "FROM secrets WHERE user_tag = ? ORDER BY accessed_at DESC", (tag,)
+            )
+            rows = cursor.fetchall()
+            return [
+                {"name": r[0], "user_tag": r[1] or "general", "created": r[2], "accessed": r[3]}
+                for r in rows
+            ]
         finally:
             conn.close()
 
@@ -138,13 +190,13 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute(
-                "SELECT name, secret_type, created_at, accessed_at "
+                "SELECT name, user_tag, created_at, accessed_at "
                 "FROM secrets WHERE name LIKE ? ORDER BY accessed_at DESC",
                 (f"%{query}%",)
             )
             rows = cursor.fetchall()
             return [
-                {"name": r[0], "type": r[1] or "password", "created": r[2], "accessed": r[3]}
+                {"name": r[0], "user_tag": r[1] or "general", "created": r[2], "accessed": r[3]}
                 for r in rows
             ]
         finally:
@@ -155,15 +207,15 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute(
-                "SELECT id, name, secret_type, encrypted_value, nonce, tag, created_at, updated_at, accessed_at "
+                "SELECT id, name, user_tag, encrypted_value, nonce, auth_tag, created_at, updated_at, accessed_at "
                 "FROM secrets ORDER BY name"
             )
             rows = cursor.fetchall()
             entries = []
             for row in rows:
                 entries.append(SecretEntry(
-                    id=row[0], name=row[1], secret_type=row[2] or "password",
-                    encrypted_value=row[3], nonce=row[4], tag=row[5],
+                    id=row[0], name=row[1], user_tag=row[2],
+                    encrypted_value=row[3], nonce=row[4], auth_tag=row[5],
                     created_at=datetime.fromisoformat(row[6]) if row[6] else datetime.now(),
                     updated_at=datetime.fromisoformat(row[7]) if row[7] else datetime.now(),
                     accessed_at=datetime.fromisoformat(row[8]) if row[8] else None,
@@ -181,12 +233,12 @@ class DatabaseManager:
                 try:
                     cursor.execute("""
                         INSERT OR REPLACE INTO secrets
-                            (id, name, secret_type, encrypted_value, nonce, tag, created_at, updated_at)
+                            (id, name, user_tag, encrypted_value, nonce, auth_tag, created_at, updated_at)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """, (
                         entry.id or os.urandom(16).hex(),
-                        entry.name, entry.secret_type,
-                        entry.encrypted_value, entry.nonce, entry.tag,
+                        entry.name, entry.user_tag,
+                        entry.encrypted_value, entry.nonce, entry.auth_tag,
                         entry.created_at.isoformat(), entry.updated_at.isoformat(),
                     ))
                     count += 1

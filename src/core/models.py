@@ -9,17 +9,17 @@ class SecretEntry:
     name: str
     encrypted_value: bytes
     nonce: bytes
-    tag: bytes
-    secret_type: str = "password"
+    auth_tag: bytes
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
     accessed_at: Optional[datetime] = None
     id: Optional[str] = None
+    user_tag: str = "general"
 
     def to_dict(self) -> dict:
         return {
             "name": self.name,
-            "type": self.secret_type,
+            "user_tag": self.user_tag,
             "created": self.created_at.isoformat() if self.created_at else None,
             "updated": self.updated_at.isoformat() if self.updated_at else None,
             "accessed": self.accessed_at.isoformat() if self.accessed_at else None,
