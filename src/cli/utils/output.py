@@ -28,7 +28,7 @@ MUTED = "#808080"
 def print_header() -> None:
     """Print the Aegis ASCII art header."""
     header = """
-    [bold #9C27B0]___              _     [/bold #9C27B0]
+    [bold #9C27B0]    ___              _     [/bold #9C27B0]
     [bold #9C27B0]   /   | ___  ____ _(_)____[/bold #9C27B0]
     [bold #9C27B0]  / /| |/ _ \\/ __ `/ / ___/[/bold #9C27B0]
     [bold #9C27B0] / ___ /  __/ /_/ / (__  ) [/bold #9C27B0]
