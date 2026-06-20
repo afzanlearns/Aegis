@@ -1,0 +1,50 @@
+# .commandcode folder (AI assistant config)
+.commandcode/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Egg info / build artifacts
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Pytest cache
+.pytest_cache/
+
+# Aegis vault data (sensitive!)
+.aegis/
+
+# Backup files
+*.backup
+*.bak
+
+# Logs
+*.log
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Secrets / keys
+*.key
+*.pem
+*.cert
