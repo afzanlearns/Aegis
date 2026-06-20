@@ -1,3 +1,4 @@
+import sys
 import click
 from cli.utils.output import (
     console, print_vault_panel, print_success, print_error,
@@ -13,6 +14,15 @@ from exceptions import AuthenticationError, SecretNotFoundError, DecryptionError
 def get(name, copy):
     """Retrieve a decrypted secret."""
     vault = VaultManager()
+    if not vault.is_authenticated():
+        console.print(
+            "[#9C27B0 bold]✗ Error:[/#9C27B0 bold] Not authenticated",
+            style="#FF5252"
+        )
+        console.print(
+            "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' first to authenticate[/dim]"
+        )
+        sys.exit(1)
 
     try:
         value = vault.get_secret(name, copy=copy)

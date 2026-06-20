@@ -1,6 +1,8 @@
+import sys
 import click
-from cli.utils.output import console, print_vault_panel, print_success, print_info
+from cli.utils.output import console, print_vault_panel, print_success, print_info, print_error
 from core.vault import VaultManager
+from exceptions import AuthenticationError
 
 
 @click.command()
@@ -22,9 +24,21 @@ def generate(length, no_symbols, save, secret_type):
     )
 
     if save:
+        if not vault.is_authenticated():
+            console.print(
+                "[#9C27B0 bold]✗ Error:[/#9C27B0 bold] Not authenticated",
+                style="#FF5252"
+            )
+            console.print(
+                "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' first to authenticate[/dim]"
+            )
+            sys.exit(1)
         try:
             vault.save_secret(save, password, secret_type)
             print_success(f"Saved as '{save}'")
+        except AuthenticationError as e:
+            print_error(str(e))
+            sys.exit(1)
         except Exception as e:
-            from cli.utils.output import print_error
             print_error(f"Failed to save: {e}")
+            sys.exit(1)

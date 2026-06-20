@@ -1,11 +1,10 @@
 import click
 from cli.utils.output import (
     console, print_header, print_vault_panel, print_success,
-    print_info, prompt_master_password, print_error, TEXT,
+    print_info, prompt_master_password, print_error,
 )
 from core.vault import VaultManager
 from exceptions import WeakPasswordError
-from rich.text import Text
 
 
 @click.command()
@@ -24,7 +23,7 @@ def setup():
         if vault.config_mgr.is_initialized():
             print_vault_panel(
                 "setup",
-                Text("  Vault already initialized at ~/.aegis/\n\n  Run 'aegis auth' to authenticate.", style=TEXT),
+                "  Vault already initialized at ~/.aegis/\n\n  Run 'aegis auth' to authenticate.",
                 border_color="#FFC107",
             )
             return

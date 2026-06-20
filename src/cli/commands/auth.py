@@ -1,11 +1,10 @@
 import click
 from cli.utils.output import (
     console, print_vault_panel, print_success, print_error,
-    print_info, prompt_master_password, TEXT,
+    print_info, prompt_master_password,
 )
 from core.vault import VaultManager
 from exceptions import AuthenticationError, VaultNotInitializedError, RateLimitError
-from rich.text import Text
 
 
 @click.command()

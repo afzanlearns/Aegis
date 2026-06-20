@@ -1,3 +1,4 @@
+import sys
 import click
 from cli.utils.output import (
     console, print_vault_panel, print_audit_logs, print_error, print_info,
@@ -11,6 +12,15 @@ from exceptions import AuthenticationError
 def audit(limit):
     """View audit log of all vault operations."""
     vault = VaultManager()
+    if not vault.is_authenticated():
+        console.print(
+            "[#9C27B0 bold]✗ Error:[/#9C27B0 bold] Not authenticated",
+            style="#FF5252"
+        )
+        console.print(
+            "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' first to authenticate[/dim]"
+        )
+        sys.exit(1)
 
     try:
         logs = vault.get_audit_logs(limit=limit)
