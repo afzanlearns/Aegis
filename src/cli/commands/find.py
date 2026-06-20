@@ -1,22 +1,29 @@
 import sys
 import click
-from cli.utils.output import console, print_secret_list, print_error, print_info
+from cli.utils.output import console, print_secret_list
 from core.vault import VaultManager
 
 
 @click.command()
 @click.argument("query")
 def find(query):
-    """Search secrets by name."""
+    """Search secrets by name.
+
+    Usage: aegis find QUERY
+
+    Examples:
+
+      aegis find github
+
+      aegis find password
+
+      aegis find database
+    """
     vault = VaultManager()
+
     if not vault.is_authenticated():
-        console.print(
-            "[#9C27B0 bold][ERR][/#9C27B0 bold] Not authenticated",
-            style="#FF5252"
-        )
-        console.print(
-            "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' to authenticate[/dim]"
-        )
+        console.print("  [bold #FFC107][WARN][/bold #FFC107] Not authenticated")
+        console.print("  [dim][*] Run: aegis auth[/dim]")
         sys.exit(1)
 
     try:
@@ -26,7 +33,7 @@ def find(query):
             console.print(f"  [bold #D39CE0]Found {len(results)} secret[/bold #D39CE0]")
             print_secret_list(results)
         else:
-            print_info(f"No secrets matching '{query}'")
+            console.print(f"  [bold #D39CE0][*][/bold #D39CE0] No secrets matching '{query}'")
     except Exception as e:
-        print_error(str(e))
+        console.print(f"  [bold #FF5252][ERR][/bold #FF5252] {e}")
         sys.exit(1)
