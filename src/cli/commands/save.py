@@ -1,36 +1,44 @@
 import sys
 import click
-from cli.utils.output import console, print_error
+from cli.utils.output import console
 from core.vault import VaultManager
 
 
 @click.command()
 @click.argument("name")
+@click.argument("value")
 @click.argument("tag")
-def save(name, tag):
-    """Save a secret with a tag."""
+def save(name, value, tag):
+    """Save a secret with a tag.
+
+    Usage: aegis save NAME VALUE TAG
+
+    Examples:
+
+      aegis save github-token ghp_1234567890 password
+
+      aegis save database-password MyPass123! password
+
+      aegis save stripe-key sk_live_xxxxx api
+
+      aegis save openai-key sk-proj-xxxxx env
+
+      aegis save prod-db-url postgres://user:pass@host database
+    """
     vault = VaultManager()
+
     if not vault.is_authenticated():
-        console.print(
-            "[#9C27B0 bold][ERR][/#9C27B0 bold] Not authenticated",
-            style="#FF5252"
-        )
-        console.print(
-            "[dim]Run '[#9C27B0]aegis auth[/#9C27B0]' to authenticate[/dim]"
-        )
+        console.print("  [bold #FFC107][WARN][/bold #FFC107] Not authenticated")
+        console.print("  [dim][*] Run: aegis auth[/dim]")
         sys.exit(1)
 
-    from getpass import getpass
-    console.print(f"  [bold #D39CE0]Value for '{name}':[/bold #D39CE0]")
-    value = getpass("  ")
-
     if not value:
-        print_error("Value cannot be empty")
+        console.print("  [bold #FF5252][ERR][/bold #FF5252] Value cannot be empty")
         sys.exit(1)
 
     try:
         vault.save_secret(name, value, tag=tag)
         console.print(f"  [bold #4CAF50][OK][/bold #4CAF50] Saved '[bold]{name}[/bold]' [[bold #D39CE0]{tag}[/bold #D39CE0]]")
     except Exception as e:
-        print_error(str(e))
+        console.print(f"  [bold #FF5252][ERR][/bold #FF5252] {e}")
         sys.exit(1)
