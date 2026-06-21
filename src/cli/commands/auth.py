@@ -1,24 +1,23 @@
 import sys
 import click
-from cli.utils.output import console
+from cli.utils.output import console, CleanCommand
 from core.vault import VaultManager
 from exceptions import AuthenticationError, VaultNotInitializedError, RateLimitError
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 @click.option("--password", "-p", help="Master password (omit for prompt)")
 def auth(password):
     """Authenticate to the vault (creates 30-minute session).
 
     Master password is required.
 
+    Options:
+      -p, --password TEXT   Master password (omit for secure prompt)
+
     Examples:
-
       aegis auth
-
-      Master Password: \u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022
-
-      [OK] Authenticated (expires in 30 minutes)
+      aegis auth -p MySecretPass123
     """
     vault = VaultManager()
 

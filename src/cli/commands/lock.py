@@ -1,20 +1,15 @@
 import click
-from cli.utils.output import console
+from cli.utils.output import console, CleanCommand
 from core.vault import VaultManager
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 def lock():
     """Lock the vault and end session.
 
-    Usage: aegis lock
-
     Examples:
-
       aegis lock
-
       [OK] Session ended
-
       [LOCK] Vault locked
     """
     vault = VaultManager()

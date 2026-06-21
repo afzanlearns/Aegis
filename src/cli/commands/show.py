@@ -1,27 +1,22 @@
 import sys
 import click
-from cli.utils.output import console
+from cli.utils.output import console, CleanCommand
 from core.vault import VaultManager
 from exceptions import SecretNotFoundError, DecryptionError
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 @click.argument("name")
 def show(name):
     """Retrieve a secret and copy it to your clipboard (auto-clears in 30s).
 
-    Usage: aegis show NAME
+    Arguments:
+      NAME              Name of the secret to retrieve
 
     Examples:
-
       aegis show github-token
-
       aegis show database-password
-
       aegis show stripe-key
-
-    The secret is copied to clipboard and never displayed on screen.
-    Clipboard clears automatically after 30 seconds.
     """
     vault = VaultManager()
 

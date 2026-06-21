@@ -30,8 +30,6 @@ def display_main_help():
         "  aegis lock",
         "",
         "Run 'aegis COMMAND --help' for more info on a command.",
-        "",
-        "First time? Run 'aegis auth' to set your master password.",
     ]
 
     for line in lines:

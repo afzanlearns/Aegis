@@ -1,23 +1,22 @@
 import sys
 import click
-from cli.utils.output import console
+from cli.utils.output import console, CleanCommand
 from core.vault import VaultManager
 from exceptions import SecretNotFoundError
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 @click.argument("name")
 def delete(name):
     """Delete a secret permanently.
 
     You will be asked to confirm before deletion.
 
-    Usage: aegis delete NAME
+    Arguments:
+      NAME              Name of the secret to delete
 
     Examples:
-
       aegis delete github-token
-
       aegis delete old-api-key
     """
     vault = VaultManager()

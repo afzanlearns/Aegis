@@ -1,22 +1,20 @@
 import sys
 import click
-from cli.utils.output import console, print_secret_list
+from cli.utils.output import console, print_secret_list, CleanCommand
 from core.vault import VaultManager
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 @click.argument("query")
 def find(query):
     """Search secrets by name.
 
-    Usage: aegis find QUERY
+    Arguments:
+      QUERY             Search term to match against secret names
 
     Examples:
-
       aegis find github
-
       aegis find password
-
       aegis find database
     """
     vault = VaultManager()

@@ -72,6 +72,13 @@ class DatabaseManager:
                 cursor.execute("UPDATE secrets SET auth_tag = tag")
                 conn.commit()
 
+            # Drop the old `tag` column to avoid NOT NULL constraint on INSERT
+            try:
+                cursor.execute("ALTER TABLE secrets DROP COLUMN tag")
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
+
         if has_secret_type:
             try:
                 cursor.execute("SELECT user_tag FROM secrets LIMIT 1")

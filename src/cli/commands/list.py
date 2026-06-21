@@ -1,25 +1,22 @@
 import sys
 import click
-from cli.utils.output import console, print_secret_list
+from cli.utils.output import console, print_secret_list, CleanCommand
 from core.vault import VaultManager
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 @click.argument("tag", required=False)
 def list_cmd(tag):
     """List all secrets or filter by tag.
 
-    Usage: aegis list [TAG]
+    Arguments:
+      TAG               (optional) Filter by tag (password, api, env, etc)
 
     Examples:
-
-      aegis list              Show all secrets
-
-      aegis list password     Show only passwords
-
-      aegis list api          Show only API keys
-
-      aegis list env          Show only environment variables
+      aegis list                    Show all secrets
+      aegis list password           Show only passwords
+      aegis list api                Show only API keys
+      aegis list env                Show only environment variables
     """
     vault = VaultManager()
 

@@ -1,28 +1,26 @@
 import sys
 import click
-from cli.utils.output import console
+from cli.utils.output import console, CleanCommand
 from core.vault import VaultManager
 
 
-@click.command()
+@click.command(cls=CleanCommand)
 @click.argument("name")
 @click.argument("value")
 @click.argument("tag")
 def save(name, value, tag):
     """Save a secret with a tag.
 
-    Usage: aegis save NAME VALUE TAG
+    Arguments:
+      NAME              Name/identifier for the secret
+      VALUE             The secret value (password, token, key, etc)
+      TAG               Category tag (password, api, env, database, etc)
 
     Examples:
-
       aegis save github-token ghp_1234567890 password
-
       aegis save database-password MyPass123! password
-
       aegis save stripe-key sk_live_xxxxx api
-
       aegis save openai-key sk-proj-xxxxx env
-
       aegis save prod-db-url postgres://user:pass@host database
     """
     vault = VaultManager()

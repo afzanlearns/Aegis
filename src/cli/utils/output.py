@@ -1,10 +1,29 @@
 import sys
+import click
+from click import Command as ClickCommand
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
 from datetime import datetime
 from typing import Optional, Dict, List
+
+
+class CleanCommand(ClickCommand):
+    """Click Command that omits [OPTIONS] from usage when there are no custom options."""
+
+    def collect_usage_pieces(self, ctx):
+        pieces = []
+        has_custom_opts = False
+        for param in self.get_params(ctx):
+            if isinstance(param, click.Option) and param.name == "help":
+                continue
+            if isinstance(param, click.Option):
+                has_custom_opts = True
+            pieces.extend(param.get_usage_pieces(ctx))
+        if has_custom_opts and self.options_metavar:
+            pieces.insert(0, self.options_metavar)
+        return pieces
 
 # Configure console for Windows terminal compatibility
 console = Console(
