@@ -83,27 +83,47 @@ class DatabaseManager:
         conn.close()
         self.db_path.chmod(0o600)
 
-    def save_secret(self, entry: SecretEntry) -> None:
+    def save_secret(self, entry: SecretEntry) -> bool:
         conn = sqlite3.connect(str(self.db_path))
         cursor = conn.cursor()
         try:
-            cursor.execute("""
-                INSERT OR REPLACE INTO secrets
-                    (id, name, user_tag, encrypted_value, nonce, auth_tag, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                entry.id or os.urandom(16).hex(),
-                entry.name,
-                entry.user_tag,
-                entry.encrypted_value,
-                entry.nonce,
-                entry.auth_tag,
-                entry.created_at.isoformat(),
-                entry.updated_at.isoformat(),
-            ))
+            cursor.execute(
+                "SELECT id FROM secrets WHERE name = ?", (entry.name,)
+            )
+            existing = cursor.fetchone()
+            is_update = existing is not None
+
+            if is_update:
+                cursor.execute("""
+                    UPDATE secrets SET
+                        user_tag = ?, encrypted_value = ?, nonce = ?,
+                        auth_tag = ?, updated_at = ?
+                    WHERE name = ?
+                """, (
+                    entry.user_tag,
+                    entry.encrypted_value,
+                    entry.nonce,
+                    entry.auth_tag,
+                    entry.updated_at.isoformat(),
+                    entry.name,
+                ))
+            else:
+                cursor.execute("""
+                    INSERT INTO secrets
+                        (id, name, user_tag, encrypted_value, nonce, auth_tag, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    entry.id or os.urandom(16).hex(),
+                    entry.name,
+                    entry.user_tag,
+                    entry.encrypted_value,
+                    entry.nonce,
+                    entry.auth_tag,
+                    entry.created_at.isoformat(),
+                    entry.updated_at.isoformat(),
+                ))
             conn.commit()
-        except sqlite3.IntegrityError:
-            raise ValueError(f"Secret '{entry.name}' already exists")
+            return is_update
         finally:
             conn.close()
 

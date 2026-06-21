@@ -98,7 +98,7 @@ class VaultManager:
         return self.session.is_valid()
 
     def save_secret(self, name: str, value: str, tag: str = "general") -> bool:
-        """Save an encrypted secret."""
+        """Save an encrypted secret. Returns True if updated existing, False if created new."""
         self._require_auth()
 
         if not name or len(name) > 100:
@@ -114,9 +114,9 @@ class VaultManager:
             created_at=now, updated_at=now,
         )
 
-        self.db.save_secret(entry)
+        is_update = self.db.save_secret(entry)
         self.audit.log("save_secret", name, True)
-        return True
+        return is_update
 
     def get_secret(self, name: str, copy: bool = False) -> str:
         """Retrieve and decrypt a secret. Optionally copy to clipboard."""

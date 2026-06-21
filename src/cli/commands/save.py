@@ -37,8 +37,9 @@ def save(name, value, tag):
         sys.exit(1)
 
     try:
-        vault.save_secret(name, value, tag=tag)
-        console.print(f"  [bold #4CAF50][OK][/bold #4CAF50] Saved '[bold]{name}[/bold]' [[bold #D39CE0]{tag}[/bold #D39CE0]]")
+        is_update = vault.save_secret(name, value, tag=tag)
+        action = "Updated" if is_update else "Saved"
+        console.print(f"  [bold #4CAF50][OK][/bold #4CAF50] {action} '[bold]{name}[/bold]' [[bold #D39CE0]{tag}[/bold #D39CE0]]")
     except Exception as e:
         console.print(f"  [bold #FF5252][ERR][/bold #FF5252] {e}")
         sys.exit(1)
